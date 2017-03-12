@@ -72,6 +72,7 @@ public class Parser
 		if (cleanLine == null || cleanLine.isEmpty())
 		{
 			commandType = CommandType.NONE;
+			return;
 		}
 
 		switch (cleanLine.charAt(0))
