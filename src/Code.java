@@ -49,17 +49,17 @@ public class Code
 
 	public String getComp(String mnemonic)
 	{
-		return this.getComp(mnemonic);
+		return compCodes.getProperty(mnemonic, null);
 	}
 
 	public String getDest(String mnemonic)
 	{
-		return this. getDest(mnemonic);
+		return destCodes.getProperty(mnemonic, null);
 	}
 
 	public String getJump(String mnemonic)
 	{
-		return this. getJump(mnemonic);
+		return jumpCodes.getProperty(mnemonic, null);
 	}
 
 	/*	@formatter:off
@@ -106,19 +106,19 @@ public class Code
 		// append and 1 reverse other than constant bit shuffling
 		return binary.reverse().toString();
 	} 	@formatter:on */
-	
-	//version three optimized for 15 bits and auto pads to 15 bits (big endian)
+
+	// version three optimized for 15 bits and auto pads to 15 bits (big endian)
 	public static String decimalToBinary(int dec)
 	{
-		StringBuilder bin = new StringBuilder();
+		StringBuilder bin = new StringBuilder(15);
 		short pos = 15;
-		
-		while(pos >= 0)
+
+		while (pos >= 0)
 		{
 			bin = bin.append((char) (((dec >>> pos) & 1) + '0'));
 			pos--;
 		}
-		
+
 		return bin.toString();
 	}
 }
