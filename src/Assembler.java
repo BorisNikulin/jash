@@ -95,7 +95,7 @@ public class Assembler
 	// commands?
 	private static void secondPass(String inputFileName, SymbolTable symbolTable, PrintWriter outputFile)
 	{
-		Parser parser = new Parser("test.asm");
+		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\add\\add.asm");
 		Code code = Code.getInstance();
 
 		while (parser.hasMoreCommands())
@@ -109,8 +109,8 @@ public class Assembler
 					break;
 				case C:
 					outputFile.write("111");
-					outputFile.write(code.getDest(parser.getDestMnemonic()));
 					outputFile.write(code.getComp(parser.getCompMnemonic()));
+					outputFile.write(code.getDest(parser.getDestMnemonic()));
 					outputFile.write(code.getJump(parser.getJumpMnemonic()));
 					outputFile.write('\n');
 					break;
