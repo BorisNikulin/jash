@@ -17,7 +17,7 @@ public class Code
 	private Properties	destCodes	= new Properties();
 	private Properties	jumpCodes	= new Properties();
 
-	protected Code ()
+	protected Code()
 	{
 		try
 		{
@@ -111,8 +111,8 @@ public class Code
 	public static String decimalToBinary(int dec)
 	{
 		StringBuilder bin = new StringBuilder(15);
-		
-		for(short pos = 15; pos >= 0; pos--)
+
+		for (short pos = 15; pos >= 0; pos--)
 		{
 			bin.append((char) (((dec >>> pos) & 1) + '0'));
 		}
