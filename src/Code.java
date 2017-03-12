@@ -111,12 +111,10 @@ public class Code
 	public static String decimalToBinary(int dec)
 	{
 		StringBuilder bin = new StringBuilder(15);
-		short pos = 15;
-
-		while (pos >= 0)
+		
+		for(short pos = 15; pos >= 0; pos--)
 		{
-			bin = bin.append((char) (((dec >>> pos) & 1) + '0'));
-			pos--;
+			bin.append((char) (((dec >>> pos) & 1) + '0'));
 		}
 
 		return bin.toString();
