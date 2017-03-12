@@ -114,7 +114,7 @@ public class Code
 		StringBuilder bin = new StringBuilder(16);
 		bin.append('0');
 		
-		for (short pos = 15; pos >= 0; pos--)
+		for (short pos = 14; pos >= 0; pos--)
 		{
 			bin.append((char) (((dec >>> pos) & 1) + '0'));
 		}
