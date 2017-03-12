@@ -67,21 +67,24 @@ public class Parser
 		}
 	}
 
-	private CommandType parseCommandType()
+	private void parseCommandType()
 	{
 		if (cleanLine == null || cleanLine.isEmpty())
 		{
-			return CommandType.NONE;
+			commandType = CommandType.NONE;
 		}
 
 		switch (cleanLine.charAt(0))
 		{
 			case '@':
-				return CommandType.A;
+				commandType = CommandType.A;
+				return;
 			case '(':
-				return CommandType.L;
+				commandType = CommandType.L;
+				return;
 			default:
-				return CommandType.C;
+				commandType = CommandType.C;
+				return;
 		}
 	}
 
@@ -101,12 +104,14 @@ public class Parser
 		{
 			case A:
 				parseSymbol();
+				break;
 			case C:
 				parseDest();
 				parseComp();
 				parseJump();
+				break;
 			default:
-				return;
+				break;
 		}
 	}
 
@@ -122,6 +127,10 @@ public class Parser
 		if (destEndIndex >= 0)
 		{
 			destMnemonic = cleanLine.substring(0, destEndIndex);
+		}
+		else
+		{
+			destMnemonic = "null";
 		}
 	}
 
@@ -141,9 +150,13 @@ public class Parser
 		int jumpStartIndex = cleanLine.indexOf(';');
 		jumpStartIndex += 1;
 
-		if (jumpStartIndex >= 0)
+		if (jumpStartIndex > 0)
 		{
 			jumpMnemonic = cleanLine.substring(jumpStartIndex, cleanLine.length());
+		}
+		else
+		{
+			jumpMnemonic = "null";
 		}
 	}
 
@@ -156,29 +169,11 @@ public class Parser
 	}
 
 	/**
-	 * @param lineNumber
-	 *            the lineNumber to set
-	 */
-	public void setLineNumber(int lineNumber)
-	{
-		this.lineNumber = lineNumber;
-	}
-
-	/**
 	 * @return the rawLine
 	 */
 	public String getRawLine()
 	{
 		return rawLine;
-	}
-
-	/**
-	 * @param rawLine
-	 *            the rawLine to set
-	 */
-	public void setRawLine(String rawLine)
-	{
-		this.rawLine = rawLine;
 	}
 
 	/**
@@ -190,29 +185,11 @@ public class Parser
 	}
 
 	/**
-	 * @param cleanLine
-	 *            the cleanLine to set
-	 */
-	public void setCleanLine(String cleanLine)
-	{
-		this.cleanLine = cleanLine;
-	}
-
-	/**
 	 * @return the commandType
 	 */
 	public CommandType getCommandType()
 	{
 		return commandType;
-	}
-
-	/**
-	 * @param commandType
-	 *            the commandType to set
-	 */
-	public void setCommandType(CommandType commandType)
-	{
-		this.commandType = commandType;
 	}
 
 	/**
@@ -224,29 +201,11 @@ public class Parser
 	}
 
 	/**
-	 * @param symbol
-	 *            the symbol to set
-	 */
-	public void setSymbol(String symbol)
-	{
-		this.symbol = symbol;
-	}
-
-	/**
 	 * @return the destMnemonic
 	 */
 	public String getDestMnemonic()
 	{
 		return destMnemonic;
-	}
-
-	/**
-	 * @param destMnemonic
-	 *            the destMnemonic to set
-	 */
-	public void setDestMnemonic(String destMnemonic)
-	{
-		this.destMnemonic = destMnemonic;
 	}
 
 	/**
@@ -258,28 +217,10 @@ public class Parser
 	}
 
 	/**
-	 * @param compMnemonic
-	 *            the compMnemonic to set
-	 */
-	public void setCompMnemonic(String compMnemonic)
-	{
-		this.compMnemonic = compMnemonic;
-	}
-
-	/**
 	 * @return the jumpMnemonic
 	 */
 	public String getJumpMnemonic()
 	{
 		return jumpMnemonic;
-	}
-
-	/**
-	 * @param jumpMnemonic
-	 *            the jumpMnemonic to set
-	 */
-	public void setJumpMnemonic(String jumpMnemonic)
-	{
-		this.jumpMnemonic = jumpMnemonic;
 	}
 }
