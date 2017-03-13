@@ -54,7 +54,7 @@ public class Parser
 	{
 		// pardon the small regex :D
 		// I just don't want to spam lots of replaceAll s
-		String clean = raw.replaceAll("\\s", " ");
+		String clean = raw.replaceAll("\\s+", "");
 
 		int commentIndex = raw.indexOf("//");
 		if (commentIndex >= 0)
@@ -104,6 +104,7 @@ public class Parser
 		switch (commandType)
 		{
 			case A:
+			case L:
 				parseSymbol();
 				break;
 			case C:
@@ -118,8 +119,24 @@ public class Parser
 
 	private void parseSymbol()
 	{
-		// clean line must have at least length 1 (the '@')
-		symbol = cleanLine.substring(1, cleanLine.length());
+		if (commandType == CommandType.A)
+		{
+			// clean line must have at least length 1 (the '@')
+			symbol = cleanLine.substring(1, cleanLine.length());
+		}
+		else
+		{
+			if (cleanLine.indexOf(')') == (cleanLine.length() - 1))
+			{
+				symbol = cleanLine.substring(1, cleanLine.length() - 1);
+			}
+			else
+			{
+				//TODO turn these errors into exceptions for proper error reporting
+				System.err.println("Labels must have a closing parenthesis.");
+				System.exit(3);
+			}
+		}
 	}
 
 	private void parseDest()
@@ -138,10 +155,12 @@ public class Parser
 	private void parseComp()
 	{
 		int compStartIndex = cleanLine.indexOf('=');
-		compStartIndex = compStartIndex >= 0 ? compStartIndex + 1 : 0;
+		compStartIndex = compStartIndex >= 0
+				? compStartIndex + 1 : 0;
 
 		int compEndIndex = cleanLine.indexOf(';');
-		compEndIndex = compEndIndex >= 0 ? compEndIndex : cleanLine.length();
+		compEndIndex = compEndIndex >= 0
+				? compEndIndex : cleanLine.length();
 
 		compMnemonic = cleanLine.substring(compStartIndex, compEndIndex);
 	}
