@@ -48,6 +48,11 @@ public class SymbolTable
 		return symbolTable.containsKey(symbol);
 	}
 	
+	public int getAddress(String symbol)
+	{
+		return symbolTable.get(symbol);
+	}
+	
 	private boolean isvalidName(String symbol)
 	{
 		if (symbol == null || symbol.isEmpty())
