@@ -61,7 +61,9 @@ public class Assembler
 
 		try
 		{
-			secondPass(null, null, new PrintWriter("out.hack"));
+			symbolTable = new SymbolTable();
+			firstPass(null, symbolTable);
+			secondPass(null, symbolTable, new PrintWriter("out.hack"));
 		}
 		catch (FileNotFoundException e)
 		{
@@ -77,7 +79,34 @@ public class Assembler
 	// HINT: when should rom address increase? What kind of commands?
 	private static void firstPass(String inputFileName, SymbolTable symbolTable)
 	{
+		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\rect\\Rect.asm");
+		int nextRAM = 16;
+		int curROM = 0;
 
+		while (parser.hasMoreCommands())
+		{
+			parser.advance();
+			switch (parser.getCommandType())
+			{
+				case A:
+					if (!symbolTable.contains(parser.getSymbol()))
+					{
+						symbolTable.addEntry(parser.getSymbol(), nextRAM);
+						nextRAM++;
+					}
+					break;
+				case L:
+					if (!symbolTable.contains(parser.getSymbol()))
+					{
+						symbolTable.addEntry(parser.getSymbol(), curROM);
+					}
+					break;
+				default:
+					break;
+			}
+
+			curROM++;
+		}
 	}
 
 	// TODO: march again through the source code and process each line:
@@ -95,7 +124,7 @@ public class Assembler
 	// commands?
 	private static void secondPass(String inputFileName, SymbolTable symbolTable, PrintWriter outputFile)
 	{
-		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\add\\add.asm");
+		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\rect\\Rect.asm");
 		Code code = Code.getInstance();
 
 		while (parser.hasMoreCommands())
@@ -118,7 +147,7 @@ public class Assembler
 					break;
 			}
 		}
-		
+
 		outputFile.close();
 	}
 
