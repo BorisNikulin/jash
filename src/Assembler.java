@@ -87,7 +87,7 @@ public class Assembler
 			parser.advance();
 			switch (parser.getCommandType())
 			{
-				case L:
+				case LABEL:
 					if (!symbolTable.contains(parser.getSymbol()))
 					{
 						symbolTable.addEntry(parser.getSymbol(), curROM);
@@ -100,7 +100,6 @@ public class Assembler
 				default:
 					break;
 			}
-
 		}
 	}
 
@@ -154,7 +153,6 @@ public class Assembler
 							nextRAM++;
 
 						}
-
 					}
 					outputFile.write('\n');
 					break;

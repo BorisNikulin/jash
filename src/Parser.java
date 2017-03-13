@@ -6,7 +6,7 @@ public class Parser
 {
 	enum CommandType
 	{
-		NONE, A, C, L,
+		NONE, A, C, LABEL,
 	}
 
 	private Scanner		inputFile;
@@ -81,7 +81,7 @@ public class Parser
 				commandType = CommandType.A;
 				return;
 			case '(':
-				commandType = CommandType.L;
+				commandType = CommandType.LABEL;
 				return;
 			default:
 				commandType = CommandType.C;
@@ -104,7 +104,7 @@ public class Parser
 		switch (commandType)
 		{
 			case A:
-			case L:
+			case LABEL:
 				parseSymbol();
 				break;
 			case C:
