@@ -60,4 +60,9 @@ public class SymbolTable
 				&& symbol.substring(1, symbol.length()).chars()
 						.allMatch(REST_CHAR);
 	}
+	
+	public String toString()
+	{
+		return symbolTable.toString();
+	}
 }
