@@ -79,8 +79,7 @@ public class Assembler
 	// HINT: when should rom address increase? What kind of commands?
 	private static void firstPass(String inputFileName, SymbolTable symbolTable)
 	{
-		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\rect\\Rect.asm");
-		int nextRAM = 16;
+		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\pong\\Pong.asm");
 		int curROM = 0;
 
 		while (parser.hasMoreCommands())
@@ -88,24 +87,20 @@ public class Assembler
 			parser.advance();
 			switch (parser.getCommandType())
 			{
-				case A:
-					if (!symbolTable.contains(parser.getSymbol()))
-					{
-						symbolTable.addEntry(parser.getSymbol(), nextRAM);
-						nextRAM++;
-					}
-					break;
 				case L:
 					if (!symbolTable.contains(parser.getSymbol()))
 					{
 						symbolTable.addEntry(parser.getSymbol(), curROM);
 					}
 					break;
+				case A:
+				case C:
+					curROM++;
+					break;
 				default:
 					break;
 			}
 
-			curROM++;
 		}
 	}
 
@@ -124,8 +119,9 @@ public class Assembler
 	// commands?
 	private static void secondPass(String inputFileName, SymbolTable symbolTable, PrintWriter outputFile)
 	{
-		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\rect\\Rect.asm");
+		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\pong\\Pong.asm");
 		Code code = Code.getInstance();
+		int nextRAM = 16;
 
 		while (parser.hasMoreCommands())
 		{
@@ -133,7 +129,33 @@ public class Assembler
 			switch (parser.getCommandType())
 			{
 				case A:
-					outputFile.write(Code.decimalToBinary(Integer.parseInt(parser.getSymbol())));
+					// many ways to check for a number (all are annoying)
+					// instead ill use the fact that a number is never a key in
+					// the symbol table
+					// i have to check the table before retrieving a symbol
+					// anyway
+					if (symbolTable.contains(parser.getSymbol()))
+					{
+						outputFile.write(Code.decimalToBinary(symbolTable.getAddress(parser.getSymbol())));
+					}
+					else
+					{
+						if (parser.getSymbol().chars().allMatch(Character::isDigit))
+						{
+							// TODO test num for 15 bit width
+							outputFile.write(Code.decimalToBinary(Integer.parseInt(parser.getSymbol())));
+						}
+						else
+						{
+							// TODO check if inserted and respond accordingly
+							// (proceed or signal exception)
+							symbolTable.addEntry(parser.getSymbol(), nextRAM);
+							outputFile.write(Code.decimalToBinary(nextRAM));
+							nextRAM++;
+
+						}
+
+					}
 					outputFile.write('\n');
 					break;
 				case C:
