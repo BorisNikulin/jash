@@ -47,12 +47,12 @@ public class SymbolTable
 	{
 		return symbolTable.containsKey(symbol);
 	}
-	
+
 	public int getAddress(String symbol)
 	{
 		return symbolTable.get(symbol);
 	}
-	
+
 	private boolean isvalidName(String symbol)
 	{
 		if (symbol == null || symbol.isEmpty())
@@ -64,8 +64,15 @@ public class SymbolTable
 		return FIRST_CHAR.test(symbol.charAt(0))
 				&& symbol.substring(1, symbol.length()).chars()
 						.allMatch(REST_CHAR);
+
+		//TODO consider @formatter:off
+//		return FIRST_CHAR.test(symbol.charAt(0))
+//				&& symbol.chars()
+//						.skip(1)
+//						.allMatch(REST_CHAR);
+//		@formatter:on
 	}
-	
+
 	public String toString()
 	{
 		return symbolTable.toString();
