@@ -26,50 +26,40 @@ public class Assembler
 		SymbolTable symbolTable;
 		int romAddress, ramAddress;
 
-		// // get input file name from command line or console input
-		// if (args.length == 1)
-		// {
-		// System.out.println("command line arg = " + args[0]);
-		// inputFileName = args[0];
-		// }
-		// else
-		// {
-		// Scanner keyboard = new Scanner(System.in);
-		//
-		// System.out.println("Please enter assembly file name you would like to
-		// assemble.");
-		// System.out.println("Don't forget the .asm extension: ");
-		// inputFileName = keyboard.nextLine();
-		//
-		// keyboard.close();
-		// }
-		//
-		// outputFileName = inputFileName.substring(0,
-		// inputFileName.lastIndexOf('.')) + ".hack";
-		//
-		// try
-		// {
-		// outputFile = new PrintWriter(new FileOutputStream(outputFileName));
-		// }
-		// catch (FileNotFoundException ex)
-		// {
-		// System.err.println("Could not open output file " + outputFileName);
-		// System.err.println("Run program again, make sure you have write
-		// permissions, etc.");
-		// System.exit(0);
-		// }
+		// get input file name from command line or console input
+		if (args.length == 1)
+		{
+			System.out.println("command line arg = " + args[0]);
+			inputFileName = args[0];
+		}
+		else
+		{
+			Scanner keyboard = new Scanner(System.in);
+
+			System.out.println("Please enter assembly file name you would like to assemble.");
+			System.out.println("Don't forget the .asm extension: ");
+			inputFileName = keyboard.nextLine();
+
+			keyboard.close();
+		}
+
+		outputFileName = inputFileName.substring(0,
+				inputFileName.lastIndexOf('.')) + ".hack";
 
 		try
 		{
-			symbolTable = new SymbolTable();
-			firstPass(null, symbolTable);
-			secondPass(null, symbolTable, new PrintWriter("out.hack"));
+			outputFile = new PrintWriter(outputFileName);
 		}
-		catch (FileNotFoundException e)
+		catch (FileNotFoundException ex)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Could not open output file " + outputFileName);
+			System.err.println("Run program again, make sure you have write permissions, etc.");
+			System.exit(0);
 		}
+
+		symbolTable = new SymbolTable();
+		firstPass(inputFileName, symbolTable);
+		secondPass(inputFileName, symbolTable, outputFile);
 	}
 
 	// TODO: march through the source code without generating any code
@@ -79,7 +69,8 @@ public class Assembler
 	// HINT: when should rom address increase? What kind of commands?
 	private static void firstPass(String inputFileName, SymbolTable symbolTable)
 	{
-		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\pong\\Pong.asm");
+		// "C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\pong\\Pong.asm"
+		Parser parser = new Parser(inputFileName);
 		int curROM = 0;
 
 		while (parser.hasMoreCommands())
@@ -118,7 +109,7 @@ public class Assembler
 	// commands?
 	private static void secondPass(String inputFileName, SymbolTable symbolTable, PrintWriter outputFile)
 	{
-		Parser parser = new Parser("C:\\Users\\Boris\\Desktop\\nand2tetris\\projects\\06\\pong\\Pong.asm");
+		Parser parser = new Parser(inputFileName);
 		Code code = Code.getInstance();
 		int nextRAM = 16;
 
@@ -169,6 +160,20 @@ public class Assembler
 		}
 
 		outputFile.close();
+	}
+	
+	public static String getFileName(String filePath)
+	{
+		int nameStartIndex = filePath.lastIndexOf('/');
+		if(filePath.lastIndexOf('/') >= 0)
+		{nameStartIndex + 1 }
+		else if( filePath.lastIndexOf('\\')
+		nameStartIndex = nameStartIndex >= 0
+				? nameStartIndex + 1 : 0;
+
+		int compEndIndex = filePath.indexOf(';');
+		compEndIndex = compEndIndex >= 0
+				? compEndIndex : filePath.length();
 	}
 
 }
