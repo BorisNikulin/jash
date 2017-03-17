@@ -108,11 +108,9 @@ public class Code
 	} 	@formatter:on */
 
 	// version three optimized for 15 bits and auto pads to 15 bits (big endian)
-	// actually translates to 16 bit A instruction so appends 0 to front
 	public static String decimalToBinary(int dec)
 	{
-		StringBuilder bin = new StringBuilder(16);
-		bin.append('0');
+		StringBuilder bin = new StringBuilder(15);
 		
 		for (short pos = 14; pos >= 0; pos--)
 		{
