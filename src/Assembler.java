@@ -23,6 +23,7 @@ public class Assembler
 		String inputFileName, outputFileName;
 		PrintWriter outputFile = null; // keep compiler happy
 		SymbolTable symbolTable;
+		// TODO remove following line?
 		int romAddress, ramAddress;
 
 		// get input file name from command line or console input
@@ -43,7 +44,7 @@ public class Assembler
 		}
 
 		String[] pathSections = dissectPath(inputFileName);
-		
+
 		outputFileName = pathSections[0] + pathSections[1] + ".hack";
 
 		try
@@ -60,6 +61,8 @@ public class Assembler
 		symbolTable = new SymbolTable();
 		firstPass(inputFileName, symbolTable);
 		secondPass(inputFileName, symbolTable, outputFile);
+		
+		outputFile.close();
 	}
 
 	// TODO: march through the source code without generating any code
@@ -118,31 +121,23 @@ public class Assembler
 			switch (parser.getCommandType())
 			{
 				case A:
-					// many ways to check for a number (all are annoying)
-					// instead ill use the fact that a number is never a key in
-					// the symbol table
-					// i have to check the table before retrieving a symbol
-					// anyway
 					if (symbolTable.contains(parser.getSymbol()))
 					{
 						outputFile.write(Code.decimalToBinary(symbolTable.getAddress(parser.getSymbol())));
 					}
+					else if (parser.getSymbol().chars().allMatch(Character::isDigit))
+					{
+						// TODO test num for 15 bit width
+						outputFile.write(Code.decimalToBinary(Integer.parseInt(parser.getSymbol())));
+					}
 					else
 					{
-						if (parser.getSymbol().chars().allMatch(Character::isDigit))
-						{
-							// TODO test num for 15 bit width
-							outputFile.write(Code.decimalToBinary(Integer.parseInt(parser.getSymbol())));
-						}
-						else
-						{
-							// TODO check if inserted and respond accordingly
-							// (proceed or signal exception)
-							symbolTable.addEntry(parser.getSymbol(), nextRAM);
-							outputFile.write(Code.decimalToBinary(nextRAM));
-							nextRAM++;
+						// TODO check if inserted and respond accordingly
+						// (proceed or signal exception)
+						symbolTable.addEntry(parser.getSymbol(), nextRAM);
+						outputFile.write(Code.decimalToBinary(nextRAM));
+						nextRAM++;
 
-						}
 					}
 					outputFile.write('\n');
 					break;
@@ -157,8 +152,6 @@ public class Assembler
 					break;
 			}
 		}
-
-		outputFile.close();
 	}
 
 	/**
