@@ -3,8 +3,8 @@ import java.util.function.IntPredicate;
 
 public class SymbolTable
 {
-	final private IntPredicate			FIRST_CHAR;
-	final private IntPredicate			REST_CHAR;
+	final public IntPredicate			FIRST_CHAR;
+	final public IntPredicate			REST_CHAR;
 
 	private HashMap<String, Integer>	symbolTable;
 
