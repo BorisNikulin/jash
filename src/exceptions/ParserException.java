@@ -33,4 +33,9 @@ public class ParserException extends RuntimeException
 	{
 		return problematicString;
 	}
+	
+	public String parseFailDescriptor()
+	{
+		return String.format("Line %d: %s\n\tin \"%s\"", line, getMessage(), problematicString);
+	}
 }
