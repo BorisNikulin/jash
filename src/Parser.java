@@ -2,6 +2,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import exceptions.ParserExceptionBuilder;
+
 public class Parser
 {
 	enum CommandType
@@ -119,23 +121,35 @@ public class Parser
 
 	private void parseSymbol()
 	{
-		if (commandType == CommandType.A)
+		switch (commandType)
 		{
-			// clean line must have at least length 1 (the '@')
-			symbol = cleanLine.substring(1, cleanLine.length());
-		}
-		else
-		{
-			if (cleanLine.indexOf(')') == (cleanLine.length() - 1))
-			{
-				symbol = cleanLine.substring(1, cleanLine.length() - 1);
-			}
-			else
-			{
-				//TODO turn these errors into exceptions for proper error reporting
-				System.err.println("Labels must have a closing parenthesis.");
-				System.exit(3);
-			}
+			case A: // clean line must have at least length 1 (the '@')
+				symbol = cleanLine.substring(1, cleanLine.length());
+				if (symbol.isEmpty())
+				{
+					throw ParserExceptionBuilder.start()
+							.at(lineNumber)
+							.in(cleanLine)
+							.as("A instruciton needs a symbol or a number")
+							.build();
+				}
+				break;
+			case LABEL:
+				if (cleanLine.indexOf(')') == (cleanLine.length() - 1))
+				{
+					symbol = cleanLine.substring(1, cleanLine.length() - 1);
+				}
+				else
+				{
+					throw ParserExceptionBuilder.start()
+							.at(lineNumber)
+							.in(cleanLine)
+							.expected(")")
+							.build();
+				}
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -145,6 +159,15 @@ public class Parser
 		if (destEndIndex >= 0)
 		{
 			destMnemonic = cleanLine.substring(0, destEndIndex);
+
+			if (destMnemonic.length() < 1 || destMnemonic.length() > 3)
+			{
+				throw ParserExceptionBuilder.start()
+						.at(lineNumber)
+						.in(cleanLine)
+						.as("Expected 1 to 3 letter destination mnemonic")
+						.build();
+			}
 		}
 		else
 		{
@@ -173,6 +196,15 @@ public class Parser
 		if (jumpStartIndex > 0)
 		{
 			jumpMnemonic = cleanLine.substring(jumpStartIndex, cleanLine.length());
+
+			if (jumpMnemonic.length() != 3)
+			{
+				throw ParserExceptionBuilder.start()
+						.at(lineNumber)
+						.in(cleanLine)
+						.as("Expected 3 letter jump mnemonic")
+						.build();
+			}
 		}
 		else
 		{
