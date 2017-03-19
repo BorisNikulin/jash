@@ -129,7 +129,7 @@ public class Parser
 				{
 					throw AssemblerExceptionBuilder.start()
 							.at(lineNumber)
-							.in(cleanLine)
+							.in(rawLine.trim())
 							.as("A instruciton needs a symbol or a number")
 							.build();
 				}
@@ -143,7 +143,7 @@ public class Parser
 				{
 					throw AssemblerExceptionBuilder.start()
 							.at(lineNumber)
-							.in(cleanLine)
+							.in(rawLine.trim())
 							.expected(")")
 							.build();
 				}
@@ -164,7 +164,7 @@ public class Parser
 			{
 				throw AssemblerExceptionBuilder.start()
 						.at(lineNumber)
-						.in(cleanLine)
+						.in(rawLine.trim())
 						.as("Expected 1 to 3 letter destination mnemonic")
 						.build();
 			}
@@ -201,7 +201,7 @@ public class Parser
 			{
 				throw AssemblerExceptionBuilder.start()
 						.at(lineNumber)
-						.in(cleanLine)
+						.in(rawLine.trim())
 						.as("Expected 3 letter jump mnemonic")
 						.build();
 			}
