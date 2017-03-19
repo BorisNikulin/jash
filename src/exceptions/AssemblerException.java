@@ -1,7 +1,7 @@
 
 package exceptions;
 
-public class ParserException extends RuntimeException
+public class AssemblerException extends RuntimeException
 {
 
 	private static final long	serialVersionUID	= -3354399774996988932L;
@@ -11,7 +11,7 @@ public class ParserException extends RuntimeException
 	private int					line;
 	private String				problematicString;
 
-	public ParserException(int line, String problematicString, String message)
+	public AssemblerException(int line, String problematicString, String message)
 	{
 		super(message);
 		this.line = line;

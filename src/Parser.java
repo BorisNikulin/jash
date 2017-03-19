@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
-import exceptions.ParserExceptionBuilder;
+import exceptions.AssemblerExceptionBuilder;
 
 public class Parser
 {
@@ -127,7 +127,7 @@ public class Parser
 				symbol = cleanLine.substring(1, cleanLine.length());
 				if (symbol.isEmpty())
 				{
-					throw ParserExceptionBuilder.start()
+					throw AssemblerExceptionBuilder.start()
 							.at(lineNumber)
 							.in(cleanLine)
 							.as("A instruciton needs a symbol or a number")
@@ -141,7 +141,7 @@ public class Parser
 				}
 				else
 				{
-					throw ParserExceptionBuilder.start()
+					throw AssemblerExceptionBuilder.start()
 							.at(lineNumber)
 							.in(cleanLine)
 							.expected(")")
@@ -162,7 +162,7 @@ public class Parser
 
 			if (destMnemonic.length() < 1 || destMnemonic.length() > 3)
 			{
-				throw ParserExceptionBuilder.start()
+				throw AssemblerExceptionBuilder.start()
 						.at(lineNumber)
 						.in(cleanLine)
 						.as("Expected 1 to 3 letter destination mnemonic")
@@ -199,7 +199,7 @@ public class Parser
 
 			if (jumpMnemonic.length() != 3)
 			{
-				throw ParserExceptionBuilder.start()
+				throw AssemblerExceptionBuilder.start()
 						.at(lineNumber)
 						.in(cleanLine)
 						.as("Expected 3 letter jump mnemonic")

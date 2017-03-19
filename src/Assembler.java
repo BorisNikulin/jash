@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
+import exceptions.AssemblerException;
+
 public class Assembler
 {
 
@@ -24,7 +26,7 @@ public class Assembler
 		PrintWriter outputFile = null; // keep compiler happy
 		SymbolTable symbolTable;
 		// TODO remove following line?
-		int romAddress, ramAddress;
+		// int romAddress, ramAddress;
 
 		// get input file name from command line or console input
 		if (args.length == 1)
@@ -43,6 +45,8 @@ public class Assembler
 			keyboard.close();
 		}
 
+		// TODO check if inputFile even exists
+
 		String[] pathSections = dissectPath(inputFileName);
 
 		outputFileName = pathSections[0] + pathSections[1] + ".hack";
@@ -59,9 +63,11 @@ public class Assembler
 		}
 
 		symbolTable = new SymbolTable();
-		firstPass(inputFileName, symbolTable);
-		secondPass(inputFileName, symbolTable, outputFile);
-		
+		if (firstPass(inputFileName, symbolTable))
+		{
+			secondPass(inputFileName, symbolTable, outputFile);
+		}
+
 		outputFile.close();
 	}
 
@@ -70,30 +76,43 @@ public class Assembler
 	// add the pair <LABEL, n> to the symbol table
 	// n = romAddress which you should keep track of as you go through each line
 	// HINT: when should rom address increase? What kind of commands?
-	private static void firstPass(String inputFileName, SymbolTable symbolTable)
+	private static boolean firstPass(String inputFileName, SymbolTable symbolTable)
 	{
 		Parser parser = new Parser(inputFileName);
 		int curROM = 0;
 
+		boolean noParseErrors = true;
+
 		while (parser.hasMoreCommands())
 		{
-			parser.advance();
-			switch (parser.getCommandType())
+			try
 			{
-				case LABEL:
-					if (!symbolTable.contains(parser.getSymbol()))
-					{
-						symbolTable.addEntry(parser.getSymbol(), curROM);
-					}
-					break;
-				case A:
-				case C:
-					curROM++;
-					break;
-				default:
-					break;
+				parser.advance();
+
+				switch (parser.getCommandType())
+				{
+					case LABEL:
+						if (!symbolTable.contains(parser.getSymbol()))
+						{
+							symbolTable.addEntry(parser.getSymbol(), curROM);
+						}
+						break;
+					case A:
+					case C:
+						curROM++;
+						break;
+					default:
+						break;
+				}
+			}
+			catch (AssemblerException e)
+			{
+				System.err.println(e.parseFailDescriptor());
+				noParseErrors = false;
 			}
 		}
+
+		return noParseErrors;
 	}
 
 	// TODO: march again through the source code and process each line:
@@ -117,39 +136,52 @@ public class Assembler
 
 		while (parser.hasMoreCommands())
 		{
-			parser.advance();
-			switch (parser.getCommandType())
+			try
 			{
-				case A:
-					if (symbolTable.contains(parser.getSymbol()))
-					{
-						outputFile.write(Code.decimalToBinary(symbolTable.getAddress(parser.getSymbol())));
-					}
-					else if (parser.getSymbol().chars().allMatch(Character::isDigit))
-					{
-						// TODO test num for 15 bit width
-						outputFile.write(Code.decimalToBinary(Integer.parseInt(parser.getSymbol())));
-					}
-					else
-					{
-						// TODO check if inserted and respond accordingly
-						// (proceed or signal exception)
-						symbolTable.addEntry(parser.getSymbol(), nextRAM);
-						outputFile.write(Code.decimalToBinary(nextRAM));
-						nextRAM++;
+				parser.advance();
+				switch (parser.getCommandType())
+				{
+					case A:
+						if (symbolTable.contains(parser.getSymbol()))
+						{
+							outputFile.write(Code.decimalToBinary(symbolTable.getAddress(parser.getSymbol())));
+						}
+						else if (parser.getSymbol().chars().allMatch(Character::isDigit))
+						{
+							
+							outputFile.write('0');
+							outputFile.write(Code.decimalToBinary(Integer.parseInt(parser.getSymbol())));
+						}
+						else
+						{
+							// TODO check if inserted and respond accordingly
+							// (proceed or signal exception)
+							if (!symbolTable.addEntry(parser.getSymbol(), nextRAM))
+							{
+								System.err.println("bad a instruction");
+							}
 
-					}
-					outputFile.write('\n');
-					break;
-				case C:
-					outputFile.write("111");
-					outputFile.write(code.getComp(parser.getCompMnemonic()));
-					outputFile.write(code.getDest(parser.getDestMnemonic()));
-					outputFile.write(code.getJump(parser.getJumpMnemonic()));
-					outputFile.write('\n');
-					break;
-				default:
-					break;
+							outputFile.write(Code.decimalToBinary(nextRAM));
+							nextRAM++;
+
+						}
+						
+						outputFile.write('\n');
+						break;
+					case C:
+						outputFile.write("111");
+						outputFile.write(code.getComp(parser.getCompMnemonic()));
+						outputFile.write(code.getDest(parser.getDestMnemonic()));
+						outputFile.write(code.getJump(parser.getJumpMnemonic()));
+						outputFile.write('\n');
+						break;
+					default:
+						break;
+				}
+			}
+			catch (AssemblerException e)
+			{
+				System.err.println(e.parseFailDescriptor());
 			}
 		}
 	}
