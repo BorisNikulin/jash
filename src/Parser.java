@@ -91,12 +91,12 @@ public class Parser
 	{
 		// pardon the small regex :D
 		// I just don't want to spam lots of replaceAll s
-		String clean = rawLine.replaceAll("\\s+", "");
+		cleanLine = rawLine.replaceAll("\\s+", "");
 
 		int commentIndex = rawLine.indexOf("//");
 		if (commentIndex >= 0)
 		{
-			clean = clean.substring(0, commentIndex);
+			cleanLine = cleanLine.substring(0, commentIndex);
 		}
 	}
 
