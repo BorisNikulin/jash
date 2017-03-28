@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 
 import exceptions.AssemblerException;
+import exceptions.AssemblerExceptionBuilder;
 
 public class Assembler
 {
@@ -134,55 +135,120 @@ public class Assembler
 		Code code = Code.getInstance();
 		int nextRAM = 16;
 
-		while (parser.hasMoreCommands())
+		try
 		{
-			try
+			while (parser.hasMoreCommands())
 			{
 				parser.advance();
+
 				switch (parser.getCommandType())
 				{
 					case A:
 						if (symbolTable.contains(parser.getSymbol()))
 						{
+							outputFile.write('0');
 							outputFile.write(Code.decimalToBinary(symbolTable.getAddress(parser.getSymbol())));
 						}
 						else if (parser.getSymbol().chars().allMatch(Character::isDigit))
 						{
-							
-							outputFile.write('0');
-							outputFile.write(Code.decimalToBinary(Integer.parseInt(parser.getSymbol())));
+							int num = Integer.parseInt(parser.getSymbol());
+
+							if (num < 0 || num >= (1 << 16))
+							{
+								throw AssemblerExceptionBuilder.start()
+										.at(parser.getLineNumber())
+										.in(parser.getRawLine().trim())
+										.as(String.format("Constant exceeded 15 bits (0 to %d inclusive)",
+												(1 << 16) - 1))
+										.build();
+							}
+							else
+							{
+								outputFile.write('0');
+								outputFile.write(Code.decimalToBinary(num));
+							}
 						}
 						else
 						{
-							// TODO check if inserted and respond accordingly
-							// (proceed or signal exception)
 							if (!symbolTable.addEntry(parser.getSymbol(), nextRAM))
 							{
-								System.err.println("bad a instruction");
+								// charAt(0) is safe since an empty symbol
+								// parsed in the first pass would stop the
+								// second pass
+								if (!symbolTable.FIRST_CHAR.test(parser.getSymbol().charAt(0)))
+									throw AssemblerExceptionBuilder.start()
+											.at(parser.getLineNumber())
+											.in(parser.getRawLine().trim())
+											.as("Symbol's first character mustbe a letter"
+													+ " or a character from \"_.$:\"")
+											.build();
+								else
+								{
+									throw AssemblerExceptionBuilder.start()
+											.at(parser.getLineNumber())
+											.in(parser.getRawLine().trim())
+											.as("Symbol's non first characters must be a letter"
+													+ ", a character from \"_.$:\", or a digit")
+											.build();
+								}
+							}
+							else
+							{
+								outputFile.write('0');
+								outputFile.write(Code.decimalToBinary(nextRAM));
+								nextRAM++;
 							}
 
-							outputFile.write(Code.decimalToBinary(nextRAM));
-							nextRAM++;
-
 						}
-						
+
 						outputFile.write('\n');
 						break;
 					case C:
-						outputFile.write("111");
-						outputFile.write(code.getComp(parser.getCompMnemonic()));
-						outputFile.write(code.getDest(parser.getDestMnemonic()));
-						outputFile.write(code.getJump(parser.getJumpMnemonic()));
-						outputFile.write('\n');
+						String compBinary = code.getComp(parser.getCompMnemonic());
+						String destBinary = code.getDest(parser.getDestMnemonic());
+						String jumpBinary = code.getJump(parser.getJumpMnemonic());
+
+						if (compBinary == null)
+						{
+							throw AssemblerExceptionBuilder.start()
+									.at(parser.getLineNumber())
+									.in(parser.getRawLine().trim())
+									.as("Illegal Computation mnemonic")
+									.build();
+						}
+						else if (destBinary == null)
+						{
+							throw AssemblerExceptionBuilder.start()
+									.at(parser.getLineNumber())
+									.in(parser.getRawLine().trim())
+									.as("Illegal Destination mnemonic")
+									.build();
+						}
+						else if (jumpBinary == null)
+						{
+							throw AssemblerExceptionBuilder.start()
+									.at(parser.getLineNumber())
+									.in(parser.getRawLine().trim())
+									.as("Illegal Jump mnemonic")
+									.build();
+						}
+						else
+						{
+							outputFile.write("111");
+							outputFile.write(compBinary);
+							outputFile.write(destBinary);
+							outputFile.write(jumpBinary);
+							outputFile.write('\n');
+						}
 						break;
 					default:
 						break;
 				}
 			}
-			catch (AssemblerException e)
-			{
-				System.err.println(e.parseFailDescriptor());
-			}
+		}
+		catch (AssemblerException e)
+		{
+			System.err.println(e.parseFailDescriptor());
 		}
 	}
 

@@ -17,6 +17,10 @@ public class Code
 	private Properties	destCodes	= new Properties();
 	private Properties	jumpCodes	= new Properties();
 
+	/**
+	 * Non-thread safe constructor for the singleton that loads the predefined
+	 * mnemonics and their translation.
+	 */
 	protected Code()
 	{
 		try
@@ -33,7 +37,7 @@ public class Code
 	}
 
 	/**
-	 * Not Thread Safe
+	 * Non-Thread Safe instance getter for the {@link Code} singleton.
 	 * 
 	 * @return The singleton instance
 	 */
@@ -47,16 +51,37 @@ public class Code
 		return instance;
 	}
 
+	/**
+	 * Translates the given mnemonic.
+	 * 
+	 * @param mnemonic
+	 *            - a computation mnemonic
+	 * @return the binary translation or null if no such translation exists.
+	 */
 	public String getComp(String mnemonic)
 	{
 		return compCodes.getProperty(mnemonic, null);
 	}
 
+	/**
+	 * Translates the given mnemonic.
+	 * 
+	 * @param mnemonic
+	 *            - a destination mnemonic
+	 * @return the binary translation or null if no such translation exists.
+	 */
 	public String getDest(String mnemonic)
 	{
 		return destCodes.getProperty(mnemonic, null);
 	}
 
+	/**
+	 * Translates the given mnemonic.
+	 * 
+	 * @param mnemonic
+	 *            - a jump mnemonic
+	 * @return the binary translation or null if no such translation exists.
+	 */
 	public String getJump(String mnemonic)
 	{
 		return jumpCodes.getProperty(mnemonic, null);
@@ -108,10 +133,19 @@ public class Code
 	} 	@formatter:on */
 
 	// version three optimized for 15 bits and auto pads to 15 bits (big endian)
+	/**
+	 * Converts the given decimal number into a 15 bit number with padded 0's in
+	 * big endian. If the number is larger than 15 bits, then only the lower 15
+	 * bits are represented.
+	 * 
+	 * @param dec
+	 *            - decimal number
+	 * @return big endian 15 bit representation
+	 */
 	public static String decimalToBinary(int dec)
 	{
 		StringBuilder bin = new StringBuilder(15);
-		
+
 		for (short pos = 14; pos >= 0; pos--)
 		{
 			bin.append((char) (((dec >>> pos) & 1) + '0'));

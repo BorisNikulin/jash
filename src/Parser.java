@@ -4,6 +4,12 @@ import java.util.Scanner;
 
 import exceptions.AssemblerExceptionBuilder;
 
+/**
+ * Class for parsing a hack asm file.
+ * 
+ * @author Boris
+ *
+ */
 public class Parser
 {
 	enum CommandType
@@ -22,6 +28,11 @@ public class Parser
 	private String		compMnemonic;
 	private String		jumpMnemonic;
 
+	/**
+	 * Parses a hack asm file.
+	 * 
+	 * @param inputFilePath - path to the hack asm file.
+	 */
 	public Parser(String inputFilePath)
 	{
 		lineNumber = 0;
@@ -37,38 +48,61 @@ public class Parser
 		}
 	}
 
+	/**
+	 * Tests to see if you can call {@link #advance()}. Will close the stream if
+	 * there are no more lines to parse
+	 * 
+	 * @return True if there are more commands to process in the file
+	 */
 	public boolean hasMoreCommands()
 	{
-		return inputFile.hasNextLine();
+		if (!inputFile.hasNextLine())
+		{
+			// should probably provide a close method
+			inputFile.close();
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 
+	/**
+	 * Advanced the parser, parsing the line, thus mutating most of it's fields
+	 * such as commandType (to represent the command type of the parsed line) to
+	 * the destMnemonic (if it had one).
+	 */
 	public void advance()
 	{
 		lineNumber++;
 		rawLine = inputFile.nextLine();
-		cleanLine = cleanLine(rawLine);
+		cleanLine();
 
 		clearParsedValues();
 		parse();
 	}
 
-	private String cleanLine(String raw)
+	/**
+	 * Removes all whitespace and everything past a comment leaving only the
+	 * command to be parsed.
+	 */
+	private void cleanLine()
 	{
 		// pardon the small regex :D
 		// I just don't want to spam lots of replaceAll s
-		String clean = raw.replaceAll("\\s+", "");
+		String clean = rawLine.replaceAll("\\s+", "");
 
-		int commentIndex = raw.indexOf("//");
+		int commentIndex = rawLine.indexOf("//");
 		if (commentIndex >= 0)
 		{
-			return clean.substring(0, commentIndex);
-		}
-		else
-		{
-			return clean;
+			clean = clean.substring(0, commentIndex);
 		}
 	}
 
+	/**
+	 * Determine the command type of the line.
+	 */
 	private void parseCommandType()
 	{
 		if (cleanLine == null || cleanLine.isEmpty())
@@ -91,6 +125,9 @@ public class Parser
 		}
 	}
 
+	/**
+	 * Clears the parsed values for the next run of parsing.
+	 */
 	private void clearParsedValues()
 	{
 		// command type is always set so no need to clear it
@@ -100,6 +137,9 @@ public class Parser
 		jumpMnemonic = null;
 	}
 
+	/**
+	 * Parses the line based on the command type.
+	 */
 	private void parse()
 	{
 		parseCommandType();
@@ -119,6 +159,10 @@ public class Parser
 		}
 	}
 
+	/**
+	 * Parses the line as an A or LABEL instruction. Mutates the
+	 * {@link#symbol} to become the current instruction symbol.
+	 */
 	private void parseSymbol()
 	{
 		switch (commandType)
@@ -153,6 +197,11 @@ public class Parser
 		}
 	}
 
+	/**
+	 * Parses the line as an C instruction. Mutates the {@link#destMnemonic} to
+	 * become the current instruction's mnemonic for the field which may or may
+	 * no be there.
+	 */
 	private void parseDest()
 	{
 		int destEndIndex = cleanLine.indexOf('=');
@@ -175,6 +224,11 @@ public class Parser
 		}
 	}
 
+	/**
+	 * Parses the line as an C instruction. Mutates the {@link#compMnemonic} to
+	 * become the current instruction's mnemonic for the field. This field is
+	 * required.
+	 */
 	private void parseComp()
 	{
 		int compStartIndex = cleanLine.indexOf('=');
@@ -186,8 +240,15 @@ public class Parser
 				? compEndIndex : cleanLine.length();
 
 		compMnemonic = cleanLine.substring(compStartIndex, compEndIndex);
+		
+		//TODO maybe some error checking here
 	}
 
+	/**
+	 * Parses the line as an C instruction. Mutates the {@link#destMnemonic} to
+	 * become the current instruction's mnemonic for the field which may or may
+	 * no be there.
+	 */
 	private void parseJump()
 	{
 		int jumpStartIndex = cleanLine.indexOf(';');
